@@ -3,19 +3,22 @@ package main
 import (
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"os"
+	"time"
 )
 
-func getRoot(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(w, "Hello, World!\n")
+func handler(w http.ResponseWriter, r *http.Request) {
+	t := time.Now()
+	fmt.Fprintf(w, "ping %d\n", t.Unix())
 }
 
 func main() {
-	http.HandleFunc("/", getRoot)
+	router := http.NewServeMux()
 
-	err := http.ListenAndServe(":3000", nil)
+	router.HandleFunc("/", handler)
+
+	err := http.ListenAndServe(":3000", router)
 
 	if errors.Is(err, http.ErrServerClosed) {
 		fmt.Printf("Server Closed\n")
